@@ -24,7 +24,7 @@ Tank.update = function(px, py, rotate) {
     this.x = px;
     this.y = py;
     this.rotate = rotate;
-    ths.draw();
+    this.draw();
 }
 
 /**
