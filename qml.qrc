@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/SLCode.js</file>
+        <file>qml/Tank.js</file>
+        <file>qml/Landmine.js</file>
+        <file>qml/Neuralnet.js</file>
+    </qresource>
+</RCC>
