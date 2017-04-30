@@ -2,7 +2,7 @@ Qt.include("Tank.js");
 Qt.include("Landmine.js");
 Qt.include("Neuralnet.js");
 
-var t1;
+
 function init(canvas) {
     var ctx = canvas.getContext("2d");
     Landmine.ctx = ctx;
@@ -10,7 +10,9 @@ function init(canvas) {
     LandmineSet.createLandminesFromData(lmData);
 
     Tank.ctx = ctx;
-    t1 = Tank.create(1);
+    controller.createTanks(1);
+
+    controller.tanks[0].update(100, 100, 0);
 }
 
 function paint(canvas) {
@@ -18,16 +20,69 @@ function paint(canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     LandmineSet.drawAll();
-    t1.update(canvas.px, canvas.py, canvas.rotate);
 
-    LandmineSet.destroyFromScale([t1.x-t1.wheel_x, t1.x+t1.wheel_x], [t1.y-t1.wheel_y, t1.y+t1.wheel_y]);
+    controller.drawAllTanks();
+    LandmineSet.destroyFromScale([controller.tanks[0].x - Tank.wheel_x, controller.tanks[0].x + Tank.wheel_x], [controller.tanks[0].y - Tank.wheel_y, controller.tanks[0].y + Tank.wheel_y]);
 }
 
 var controller = {
     population: [],
-    sweepers: [],
-    mines: LandmineSet,
+    tanks: [],
+
+    weightsNumInNN: 0, // weights in neural net
+    avgFitness: 0, // the average fitness of each epoch
+    bestFitness: 0, // the best fitness of each epoch
+    ticks: 0, // the frame for each epoch
+
+    update: function() {
+        if (this.ticks++ < Params.tickNums) {
+            for (var i = 0; i < this.tanks.length; i++) {
+
+            }
+        }
+    },
+
+    /**
+     * set exact tank's speed
+     * {int} id
+     * {double} speed
+     */
+    setTankSpeed: function(id, speed) {
+        this.tanks[id].speed = speed;
+    },
+
+    /**
+     * {int} num  the number of tanks needed to be created
+     */
+    createTanks: function(num) {
+        for (var i = 0; i < num; i++) {
+            this.tanks.push(Tank.create(i));
+        }
+    },
+
+    drawAllTanks: function() {
+        this.tanks.forEach(function(tank){
+           tank.draw();
+        });
+    }
+
 
 }
 
-
+function moveFirstTank(code) {
+    // var t = controller.getTank(0);
+    switch (code) {
+        case Qt.Key_W:
+            controller.tanks[0].move(-1, 0);
+            break;
+        case Qt.Key_A:
+            controller.tanks[0].rotate -= 5;
+            break;
+        case Qt.Key_S:
+            controller.tanks[0].move(1, 0);
+            break;
+        case Qt.Key_D:
+            controller.tanks[0].rotate += 5;
+            break;
+    }
+}

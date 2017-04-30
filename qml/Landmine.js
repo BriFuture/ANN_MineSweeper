@@ -1,5 +1,5 @@
 var Landmine = {
-    size: 8,
+    size: 6,
     create: function(x, y) {
         var lm = Object.create(Landmine);
         lm.x = x;
@@ -13,6 +13,7 @@ var Landmine = {
         this.ctx.rect(this.x-Landmine.size, this.y-Landmine.size, 2*Landmine.size, 2*Landmine.size);
         this.ctx.fill();
     },
+    // is point (x, y) in Landmine's scale
     ownPos: function (x, y) {
         if( x > (this.x - this.size) && x < (this.x + this.size) ) {
             if( y > (this.y - this.size) && y < (this.y + this.size) ) {
@@ -22,6 +23,34 @@ var Landmine = {
 
         return false;
     },
+    /**
+      * {Array} xscale
+      * {Array} yscale
+    */
+    inScale: function(xscale, yscale) {
+        // left up
+        if( (this.x - this.size) > xscale[0] && (this.x - this.size) < xscale[1] ) {
+            if( (this.y - this.size) > yscale[0] && (this.y - this.size) < yscale[1] )
+                return true;
+        }
+        // left down
+        if( (this.x - this.size) > xscale[0] && (this.x - this.size) < xscale[1] ) {
+            if( (this.y + this.size) > yscale[0] && (this.y + this.size) < yscale[1] )
+                return true;
+        }
+        // right down
+        if( (this.x + this.size) > xscale[0] && (this.x + this.size) < xscale[1] ) {
+            if( (this.y + this.size) > yscale[0] && (this.y + this.size) < yscale[1] )
+                return true;
+        }
+        // right up
+        if( (this.x + this.size) > xscale[0] && (this.x + this.size) < xscale[1] ) {
+            if( (this.y - this.size) > yscale[0] && (this.y - this.size) < yscale[1] )
+                return true;
+        }
+
+        return false;
+    }
 };
 
 var LandmineSet = {
@@ -74,16 +103,19 @@ var LandmineSet = {
     },
 
     /**
-      *  4 points are enough right now
       * {Array} xscale
       * {Array} yscale
      */
     destroyFromScale: function (xscale, yscale) {
-        this.destroyAtPos(xscale[0], yscale[0]);
-        this.destroyAtPos(xscale[0], yscale[1]);
-        this.destroyAtPos(xscale[1], yscale[1]);
-        this.destroyAtPos(xscale[1], yscale[0]);
-    }
+        var newmines = [];
+        this.mines.forEach(function(mine, index) {
+           if( !mine.inScale(xscale, yscale) ) {
+               newmines.push(mine);
+           }
+        });
+        this.mines = newmines;
+    },
+
 };
 
 

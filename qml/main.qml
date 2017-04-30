@@ -18,24 +18,25 @@ ApplicationWindow {
         focus: true
         Keys.enabled: true
         Keys.onPressed: {
-            switch(event.key) {
-            case Qt.Key_W:
-                slCanvas.py -= slCanvas.speed
-                slCanvas.rotate = 180
-                break;
-            case Qt.Key_A:
-                slCanvas.px -= slCanvas.speed
-                slCanvas.rotate = 90
-                break;
-            case Qt.Key_S:
-                slCanvas.py += slCanvas.speed
-                slCanvas.rotate = 0
-                break;
-            case Qt.Key_D:
-                slCanvas.px += slCanvas.speed
-                slCanvas.rotate = 270
-                break;
-            }
+//            switch(event.key) {
+//            case Qt.Key_W:
+//                slCanvas.py -= slCanvas.speed
+//                slCanvas.rotate = 180
+//                break;
+//            case Qt.Key_A:
+//                slCanvas.px -= slCanvas.speed
+//                slCanvas.rotate = 90
+//                break;
+//            case Qt.Key_S:
+//                slCanvas.py += slCanvas.speed
+//                slCanvas.rotate = 0
+//                break;
+//            case Qt.Key_D:
+//                slCanvas.px += slCanvas.speed
+//                slCanvas.rotate = 270
+//                break;
+//            }
+            SLCode.moveFirstTank(event.key);
         }
     }
 
@@ -51,10 +52,6 @@ ApplicationWindow {
         renderTarget: Canvas.FramebufferObject
         property int tankNum: 3
 //        property var tankState: ({})
-        property int px: 100
-        property int py: 100
-        property int rotate: 0
-        property int speed: 10
 
         // 初始化
         onAvailableChanged: {

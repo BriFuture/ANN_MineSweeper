@@ -60,6 +60,7 @@ var Params = {
     bias: 1,
     activationResponse: 1,
     maxPerturbatlon: 0.001,
+    tickNums: 1000,
 };
 
 // whole net which contains a lot of nerual cells and layers
