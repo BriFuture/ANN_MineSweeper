@@ -28,6 +28,13 @@ var Landmine = {
       * {Array} yscale
     */
     inScale: function(xscale, yscale) {
+        // simplified compution
+        if ( this.x > xscale[0] && this.x < xscale[1] ) {
+            if( this.y > yscale[0] && this.y < yscale[1] )
+                return true;
+        }
+        return false;
+
         // left up
         if( (this.x - this.size) > xscale[0] && (this.x - this.size) < xscale[1] ) {
             if( (this.y - this.size) > yscale[0] && (this.y - this.size) < yscale[1] )
@@ -59,7 +66,7 @@ var LandmineSet = {
       * create a lot of mines from data
       * {Array} data
     */
-    createLandminesFromData: function(data) {
+    addLandminesFromData: function(data) {
         for(var i = 0; i+1 < data.length; i+=2) {
             this.mines.push(Landmine.create(data[i], data[i+1]));
         }

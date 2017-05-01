@@ -6,8 +6,13 @@ Qt.include("Neuralnet.js");
 function init(canvas) {
     var ctx = canvas.getContext("2d");
     Landmine.ctx = ctx;
-    var lmData = [10, 20, 50, 80, 120, 200, 400, 300, 350, 100];
-    LandmineSet.createLandminesFromData(lmData);
+//    var lmData = [10, 20, 50, 80, 120, 200, 400, 300, 350, 100];
+    var lmData = [];
+    for(var i = 0; i < controller.mineNum; i++) {
+        lmData.push(parseInt(Math.random()*canvas.width), parseInt(Math.random()*canvas.height));
+    }
+
+    LandmineSet.addLandminesFromData(lmData);
 
     Tank.ctx = ctx;
     controller.createTanks(1);
@@ -20,14 +25,23 @@ function paint(canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     LandmineSet.drawAll();
-
     controller.drawAllTanks();
+
     LandmineSet.destroyFromScale([controller.tanks[0].x - Tank.wheel_x, controller.tanks[0].x + Tank.wheel_x], [controller.tanks[0].y - Tank.wheel_y, controller.tanks[0].y + Tank.wheel_y]);
+
+    if( LandmineSet.mines.length < controller.mineNum ) {
+        var lmData = [parseInt(Math.random()*canvas.width), parseInt(Math.random()*canvas.height)];
+//        for(var i = LandmineSet.mines.length; i < controller.mineNum; i++) {
+//            lmData.push(parseInt(Math.random()*canvas.width), parseInt(Math.random()*canvas.height));
+//        }
+        LandmineSet.addLandminesFromData(lmData);
+    }
 }
 
 var controller = {
     population: [],
     tanks: [],
+    mineNum: 20,
 
     weightsNumInNN: 0, // weights in neural net
     avgFitness: 0, // the average fitness of each epoch

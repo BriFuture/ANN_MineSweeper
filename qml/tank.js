@@ -4,7 +4,7 @@ var Tank = {
     "x": 0,
     "y": 0,
     "rotate": 0,
-    "scanscale": 20,
+    "scanscale": 40,
     "wheel_x": 18,
     "wheel_y": 15,
     "wheel_width": 6,
@@ -108,8 +108,51 @@ var Tank = {
         var p1 = point[0] * rotateMatrix[0] + point[1] * rotateMatrix[2];
         var p2 = point[0] * rotateMatrix[1] + point[1] * rotateMatrix[3];
         return [p1, p2];
+    },
+
+    /**
+      * calc angle with the direction and the closest mine
+      * {int} mx
+      * {int} my
+    */
+    calcAngleWithMine: function(mx, my) {
+        var a1 = mx - this.x;
+        var a2 = my - this.y;
+        var r1 = degToRad(this.rotate+90);
+        var r2 = degToRad(this.rotate);
+        var theta = Math.acos((a1*b1+a2*b2)/this.calcPointsDistance([a1, a2], [Math.cos(r1), Math.sin(r1)]));
+        var thetap = Math.acos((a1*b1+a2*b2)/this.calcPointsDistance([a1, a2], [Math.cos(r2), Math.sin(r2)]));
+        if( thetap > 0) {
+            // left hand
+            theta = Math.PI*2 - theta;
+        }
+        return theta*180/Math.PI;
+    },
+    /**
+      * {Array} mines
+    **/
+    findClosestMine: function(mines) {
+        var closestMines = [];
+        var closests = -1;
+        mines.forEach(function(mine, index) {
+//            if(mine.inScale([this.x-this.scanscale, this.x+this.scanscale], [this.y-this.scanscale, this.y+this.scanscale])) {
+//                closestMines.push(mine);
+//            }
+//            if( index === 0 ) {
+//                closests = calcPointsDistance([this.x, this.y], [mine.x, mine.y]);
+//            }
+
+            if( this.calcPointsDistance([this.x, this.y], [mine.x, mine.y]) < this.scanscale ) {
+                closestMines.push(mine);
+            }
+        });
+        return closestMines;
     }
 };
+
+function calcPointsDistance(p1, p2) {
+    return Math.sqrt((p1[0]-p2[0])*(p1[0]-p2[0]) + (p1[1]-p2[1])*(p1[1]-p2[1]));
+}
 
 Tank.update = function(px, py, rotate) {
     this.x = px;

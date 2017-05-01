@@ -1,4 +1,6 @@
-// neural cell
+/*
+ * neural cell, which may contain a lot of inputs and just one output 
+ */
 var Neuron = {
     inputNum: 0, // the number of inputs
     weights: [], // weight of each input
@@ -95,7 +97,7 @@ var NeuralNet = {
 
             this.layers.push(NeuronLayer.build(outputNum, neuronsPerHiddenLayer));
         } else {
-            this.layers.push(NeuronLayer(outputNum, inputNum));
+            this.layers.push(NeuronLayer.build(outputNum, inputNum));
         }
     },
 
