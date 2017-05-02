@@ -1,3 +1,20 @@
+function initializeParam() {
+    var str = String(fileutil.getContent());
+    console.log(str)
+    Params = JSON.parse(str);
+
+    console.log(JSON.stringify(Params));
+}
+
+var Params = {
+    bias: 1,
+    activationResponse: 1,
+    maxPerturbatlon: 0.001,
+    tickNums: 1000,
+};
+
+initializeParam();
+
 /*
  * neural cell, which may contain a lot of inputs and just one output 
  */
@@ -23,7 +40,7 @@ var NeuronLayer = {
     neurons: [], // neurons belong to this layer
     /**
      * {int} neuronNum
-     * {int} inputNumPerNeuron      it now indicates that input number of each neuron is the same
+     * {int} inputNumPerNeuron      it now indicates that input number of each neuron in this layer is the same
      */
     build: function(neuronNum, inputNumPerNeuron) {
         for (var i = 0; i < neuronNum; i++) {
@@ -58,18 +75,11 @@ var Genome = {
     }
 };
 
-var Params = {
-    bias: 1,
-    activationResponse: 1,
-    maxPerturbatlon: 0.001,
-    tickNums: 1000,
-};
-
 // whole net which contains a lot of nerual cells and layers
 var NeuralNet = {
     inputNum: 0, // input layer's input number(not cell)
     outputNum: 0, // output layer's cell
-    hiddenLayers: 0, // number of hidden layer
+    hiddenLayers: 0, // number of hidden layer,(at least 1, because it contians output layer)
     neuronsPerHiddenLayer: 0,
     /**
      * {NeuronLayer} layers
@@ -84,7 +94,8 @@ var NeuralNet = {
     },
 
     /**
-     * create net from neuron
+     * create net from neuron,
+     * it simplified the compution of creating a net (you may want to different the number of neural cells and the number of neural's inputs, but here they are the same)
      **/
     createNet: function() {
         if (this.hiddenLayers > 0) {
@@ -92,29 +103,40 @@ var NeuralNet = {
             this.layers.push(NeuronLayer.build(neuronsPerHiddenLayer, inputNum));
 
             for (var i = 0; i < hiddenLayers - 1; i++) {
+                // it means the input number of each neural cell is the same as the number of neural cell in this layer
                 this.layers.push(NeuronLayer.build(neuronsPerHiddenLayer, neuronsPerHiddenLayer));
             }
-
+            // output layer's input number is the same as the number of neural cell in hidden layer
             this.layers.push(NeuronLayer.build(outputNum, neuronsPerHiddenLayer));
         } else {
             this.layers.push(NeuronLayer.build(outputNum, inputNum));
         }
     },
 
-    // get the weight of NeuralNet
+    /**
+     * get the weight of NeuralNet
+     * it is coded as a serialized data
+    */
     getWeights: function() {
-
-    },
-    getNumberOfWeights: function() {
-        var number = 0;
-
-        this.layers.forEach(function(layer, i) {
-            layer.forEach(function(neuron, ii) {
-                number += neuron.weights.num;
-            });
+        var weights = [];
+        this.layers.forEach(function(layer) { // each neural layer
+            layer.forEach(function(neuron) { // each neural cell
+                weights.push.applay(weights, neuron.weights);
+            })
         });
 
-        return number;
+        return weights;
+    },
+
+    getNumberOfWeights: function() {
+//        var number = 0;
+
+//        this.layers.forEach(function(layer, i) {
+//            layer.forEach(function(neuron, ii) {
+//                number += neuron.weights.num;
+//            });
+//        });
+        return this.getWeights().length;
     },
 
     /**

@@ -25,8 +25,10 @@ function paint(canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     LandmineSet.drawAll();
+
     controller.drawAllTanks();
 
+    // check that if the mine should be cleared
     LandmineSet.destroyFromScale([controller.tanks[0].x - Tank.wheel_x, controller.tanks[0].x + Tank.wheel_x], [controller.tanks[0].y - Tank.wheel_y, controller.tanks[0].y + Tank.wheel_y]);
 
     if( LandmineSet.mines.length < controller.mineNum ) {
@@ -49,7 +51,7 @@ var controller = {
     ticks: 0, // the frame for each epoch
 
     update: function() {
-        if (this.ticks++ < Params.tickNums) {
+        if ( this.ticks++ < Params.tickNums ) {
             for (var i = 0; i < this.tanks.length; i++) {
 
             }
@@ -78,8 +80,11 @@ var controller = {
         this.tanks.forEach(function(tank){
            tank.draw();
         });
-    }
+    },
 
+    initNeuralnet: function() {
+        NeuralNet.build("");
+    }
 
 }
 

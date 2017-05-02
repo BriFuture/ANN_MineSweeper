@@ -4,11 +4,10 @@ import QtQuick.Layouts 1.0
 
 import "SLCode.js" as SLCode
 
-ApplicationWindow {
+Item {
     visible: true
     width: 800
     height: 600
-    title: qsTr("Hello World")
 
     MouseArea{
         id: mouseArea
@@ -51,7 +50,7 @@ ApplicationWindow {
         antialiasing: true
         renderTarget: Canvas.FramebufferObject
         property int tankNum: 3
-//        property var tankState: ({})
+//        property var fileutil: fileutil
 
         // 初始化
         onAvailableChanged: {

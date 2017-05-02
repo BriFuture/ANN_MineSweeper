@@ -2,7 +2,9 @@ QT += qml quick
 
 CONFIG += c++11
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    fileutil.cpp \
+    configutil.cpp
 
 RESOURCES += qml.qrc
 
@@ -28,4 +30,6 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-HEADERS +=
+HEADERS += \
+    fileutil.h \
+    configutil.h
