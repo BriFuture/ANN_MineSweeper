@@ -35,6 +35,7 @@ QString FileUtil::read() {
         str.append(line);
     }
     content = str;
+    file.close();
     return str;
 }
 
@@ -52,5 +53,6 @@ bool FileUtil::write(const QString &data) {
 //    qDebug() <<  file.fileName();
     QTextStream out(&file);
     out << data << "\n";
+    file.close();
     return true;
 }

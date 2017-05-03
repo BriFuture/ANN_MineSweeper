@@ -88,6 +88,10 @@ var controller = {
 
 }
 
+function writeParams() {
+    fileutil.write(JSON.stringify(Params));
+}
+
 function moveFirstTank(code) {
     // var t = controller.getTank(0);
     switch (code) {

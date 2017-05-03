@@ -15,6 +15,7 @@ int main(int argc, char *argv[])
 //    engine.
     QQuickView *view = new QQuickView;
     view->rootContext()->setContextProperty("fileutil", &fu);
+    view->rootContext()->setContextProperty("windowContainer", view);
     view->setSource(QUrl(QLatin1String("qrc:/qml/main.qml")));
     view->setTitle("SL");
     view->show();

@@ -39,6 +39,16 @@ Item {
         }
     }
 
+    Connections {
+        target: windowContainer
+        onVisibleChanged: {
+            if( !windowContainer.visible ) {
+                // write into config.ini file
+                SLCode.writeParams();
+            }
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
         color: Qt.rgba(0.86, 0.86, 0.86, 1)

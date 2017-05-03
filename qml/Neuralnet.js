@@ -1,9 +1,9 @@
 function initializeParam() {
     var str = String(fileutil.getContent());
-    console.log(str)
+//    console.log(str)
     Params = JSON.parse(str);
 
-    console.log(JSON.stringify(Params));
+
 }
 
 var Params = {
