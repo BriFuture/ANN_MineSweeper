@@ -4,7 +4,8 @@ CONFIG += c++11
 
 SOURCES += main.cpp \
     fileutil.cpp \
-    configutil.cpp
+    configutil.cpp \
+    cneuralnet.cpp
 
 RESOURCES += qml.qrc
 
@@ -32,4 +33,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     fileutil.h \
-    configutil.h
+    configutil.h \
+    cneuralnet.h

@@ -1,18 +1,21 @@
-#include <QGuiApplication>
+﻿#include <QGuiApplication>
 #include <QQuickView>
 #include <QQmlContext>
 #include "fileutil.h"
+#include "cneuralnet.h"
+#include <ctime>
 
 int main(int argc, char *argv[])
 {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
 
-    FileUtil fu("config.ini");
-//    fu.write("some test!");
+    srand((int) time(0));
+    FileUtil fu("config-js.ini");
+    CNeuralNet neuralnet;
+    neuralnet.CreateNet();
+    neuralnet.GetWeights();
 
-//    QQmlApplicationEngine engine;
-//    engine.
     QQuickView *view = new QQuickView;
     view->rootContext()->setContextProperty("fileutil", &fu);
     view->rootContext()->setContextProperty("windowContainer", view);

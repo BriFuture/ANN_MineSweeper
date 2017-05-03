@@ -5,5 +5,6 @@
         <file>qml/Tank.js</file>
         <file>qml/Landmine.js</file>
         <file>qml/Neuralnet.js</file>
+        <file>qml/Params.js</file>
     </qresource>
 </RCC>

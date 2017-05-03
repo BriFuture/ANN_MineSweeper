@@ -1,19 +1,8 @@
-function initializeParam() {
-    var str = String(fileutil.getContent());
-//    console.log(str)
-    Params = JSON.parse(str);
-
-
-}
-
-var Params = {
-    bias: 1,
-    activationResponse: 1,
-    maxPerturbatlon: 0.001,
-    tickNums: 1000,
-};
-
-initializeParam();
+/**
+  * @Deprecated
+  * JS Object.create() does not new a object, this is not I want to get.
+  */
+Qt.include("Params.js")
 
 /*
  * neural cell, which may contain a lot of inputs and just one output 
@@ -25,13 +14,15 @@ var Neuron = {
      * {int} inputNum
      */
     build: function(inputNum) {
-        this.inputNum = inputNum;
-        // it includes valve value, so one more than inputNum
+        var n = Object.create(Neuron);
+        n.inputNum = inputNum;
+        // it includes valve value, so there is one more than inputNum
         for (var i = 0; i < inputNum + 1; i++) {
             // -1 ~ 1
-            this.weights.push(Math.random() * 2 - 1);
+            n.weights.push(Math.random() * 2 - 1);
         }
-        return this;
+        console.log( n.inputNum + "  " + n.weights.length);
+        return n;
     }
 };
 
@@ -79,18 +70,32 @@ var Genome = {
 var NeuralNet = {
     inputNum: 0, // input layer's input number(not cell)
     outputNum: 0, // output layer's cell
-    hiddenLayers: 0, // number of hidden layer,(at least 1, because it contians output layer)
+    hiddenLayers: 0, // number of hidden layer, exclude output layer
     neuronsPerHiddenLayer: 0,
+    weights: [],
     /**
      * {NeuronLayer} layers
      */
     layers: [], // contains all layers (include output layer)
 
     /**
-     * {String} file  path of the file
+     * config file's path is set by fileutil
      **/
-    build: function(file) {
+    build: function() {
+        this.inputNum = Params.getParam("NeuralNet_inputNum", 5);
+        this.outputNum = Params.getParam("NeralNet_outputNum", 2);
+        this.hiddenLayers = Params.getParam("NeuralNet_hiddenLayers", 0);
+        this.neuronsPerHiddenLayer = Params.getParam("NeuralNet_neuronsPerHiddenLayer", 2);
+        this.createNet();
+        this.weights = Params.getParam("NeuralNet_weights",[]);
+        if( this.weights.length === this.getNumberOfWeights() ) {
+//            this.putWeights(Params.NeuralNet_weights);
+        } else {
+            Params.setParam("NeuralNet_weights", this.getWeights());
+        }
+        console.log(this.weights.length+ " ===  " + this.getNumberOfWeights() + "  " + Params.getParam("NeuralNet_weights",[]))
 
+        return this;
     },
 
     /**
@@ -98,18 +103,20 @@ var NeuralNet = {
      * it simplified the compution of creating a net (you may want to different the number of neural cells and the number of neural's inputs, but here they are the same)
      **/
     createNet: function() {
-        if (this.hiddenLayers > 0) {
-            // first, input layer(of course it is not in hidden layers)
-            this.layers.push(NeuronLayer.build(neuronsPerHiddenLayer, inputNum));
-
-            for (var i = 0; i < hiddenLayers - 1; i++) {
+        if ( this.hiddenLayers > 0 ) {
+            // first layer(of course it is not in hidden layers)
+            this.layers.push(NeuronLayer.build(this.neuronsPerHiddenLayer, this.inputNum));
+            // other layer
+            for (var i = 0; i < this.hiddenLayers-1; i++) {
                 // it means the input number of each neural cell is the same as the number of neural cell in this layer
-                this.layers.push(NeuronLayer.build(neuronsPerHiddenLayer, neuronsPerHiddenLayer));
+                this.layers.push(NeuronLayer.build(this.neuronsPerHiddenLayer, this.neuronsPerHiddenLayer));
             }
             // output layer's input number is the same as the number of neural cell in hidden layer
-            this.layers.push(NeuronLayer.build(outputNum, neuronsPerHiddenLayer));
+            this.layers.push(NeuronLayer.build(this.outputNum, this.neuronsPerHiddenLayer));
         } else {
-            this.layers.push(NeuronLayer.build(outputNum, inputNum));
+            // connect output layer and input layer directly
+            this.layers.push(NeuronLayer.build(this.outputNum, this.inputNum));
+            console.log(this.layers[0].neurons.length);
         }
     },
 
@@ -120,8 +127,8 @@ var NeuralNet = {
     getWeights: function() {
         var weights = [];
         this.layers.forEach(function(layer) { // each neural layer
-            layer.forEach(function(neuron) { // each neural cell
-                weights.push.applay(weights, neuron.weights);
+            layer.neurons.forEach(function(neuron) { // each neural cell
+                weights.push.apply(weights, neuron.weights);
             })
         });
 
@@ -129,13 +136,6 @@ var NeuralNet = {
     },
 
     getNumberOfWeights: function() {
-//        var number = 0;
-
-//        this.layers.forEach(function(layer, i) {
-//            layer.forEach(function(neuron, ii) {
-//                number += neuron.weights.num;
-//            });
-//        });
         return this.getWeights().length;
     },
 
@@ -143,7 +143,14 @@ var NeuralNet = {
      * {Array} weights
      */
     putWeights: function(weights) {
-        this.weights = weights;
+//        this.weights = weights;
+        var n = 0;
+        this.layers.forEach(function(layer) {
+            layer.neurons.forEach(function(neuron) {
+                neuron.weights = weights.slice(n, n + neuron.inputNum);
+                n += neuron.inputNum;
+            });
+        });
         return this;
     },
 
@@ -185,9 +192,9 @@ var NeuralNet = {
                 }
 
                 // valve value
-                netinput += neuron.weights[inputNum - 1] * Params.bias;
+                netinput += neuron.weights[inputNum - 1] * Params.getParam("bias", 1);
                 // compute the sum all output, and handle it with sigmoid() function
-                outputs.push(sigmoid(netinput, Params.activationResponse));
+                outputs.push(sigmoid(netinput, Params.getParam("activationResponse", 1)));
                 weight = 0;
             }
         }
@@ -204,7 +211,7 @@ var GenAlg = {
     mutate: function(chromo) {
         for (var i = 0; i < chromo.length; i++) {
             if (Math.random() < this.mutationRate) {
-                chromo[i] += (Math.random() * Params.maxPerturbatlon);
+                chromo[i] += (Math.random() * Params.getParam("maxPerturbatlon", 0.001));
             }
         }
     }

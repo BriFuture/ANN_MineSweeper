@@ -1,4 +1,4 @@
-#include "fileutil.h"
+﻿#include "fileutil.h"
 #include <QTextStream>
 #include <QDir>
 #include <QDebug>
@@ -50,7 +50,7 @@ bool FileUtil::write(const QString &data) {
     if( !file.open(QIODevice::WriteOnly | QIODevice::Text) ) {
         return false;
     }
-//    qDebug() <<  file.fileName();
+    qDebug() <<  file.fileName();
     QTextStream out(&file);
     out << data << "\n";
     file.close();

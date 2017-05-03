@@ -1,12 +1,13 @@
+Qt.include("Params.js")
 Qt.include("Tank.js");
 Qt.include("Landmine.js");
-Qt.include("Neuralnet.js");
+//Qt.include("Neuralnet.js");
 
-
+var controller;
 function init(canvas) {
     var ctx = canvas.getContext("2d");
+    controller = Controller.build();
     Landmine.ctx = ctx;
-//    var lmData = [10, 20, 50, 80, 120, 200, 400, 300, 350, 100];
     var lmData = [];
     for(var i = 0; i < controller.mineNum; i++) {
         lmData.push(parseInt(Math.random()*canvas.width), parseInt(Math.random()*canvas.height));
@@ -40,7 +41,7 @@ function paint(canvas) {
     }
 }
 
-var controller = {
+var Controller = {
     population: [],
     tanks: [],
     mineNum: 20,
@@ -48,10 +49,21 @@ var controller = {
     weightsNumInNN: 0, // weights in neural net
     avgFitness: 0, // the average fitness of each epoch
     bestFitness: 0, // the best fitness of each epoch
+    tickNum: 0,
     ticks: 0, // the frame for each epoch
+    build: function() {
+        this.initSelfParams();
+//        this.initNeuralnet();
+        return this;
+    },
+
+    initSelfParams: function() {
+        this.mineNum = Params.getParam("Controller_mineNum", 20);
+        this.tickNums = Params.getParam("Controller_tickNum", 500);
+    },
 
     update: function() {
-        if ( this.ticks++ < Params.tickNums ) {
+        if ( this.ticks++ < this.tickNum ) {
             for (var i = 0; i < this.tanks.length; i++) {
 
             }
@@ -82,14 +94,14 @@ var controller = {
         });
     },
 
-    initNeuralnet: function() {
-        NeuralNet.build("");
-    }
+//    initNeuralnet: function() {
+//        NeuralNet.build();
+//    }
 
 }
 
 function writeParams() {
-    fileutil.write(JSON.stringify(Params));
+    Params.writeParams();
 }
 
 function moveFirstTank(code) {
