@@ -3,6 +3,7 @@
 #include <QQmlContext>
 #include "fileutil.h"
 #include "cneuralnet.h"
+#include "controller.h"
 #include <ctime>
 
 int main(int argc, char *argv[])
@@ -11,13 +12,16 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     srand((int) time(0));
+
     FileUtil fu("config-js.ini");
-    CNeuralNet neuralnet;
-    neuralnet.CreateNet();
-    neuralnet.GetWeights();
+//    Controller c;
+//    CNeuralNet neuralnet;
+//    neuralnet.CreateNet();
+//    neuralnet.GetWeights();
 
     QQuickView *view = new QQuickView;
     view->rootContext()->setContextProperty("fileutil", &fu);
+//    view->rootContext()->setContextProperty("cController", &c);
     view->rootContext()->setContextProperty("windowContainer", view);
     view->setSource(QUrl(QLatin1String("qrc:/qml/main.qml")));
     view->setTitle("SL");

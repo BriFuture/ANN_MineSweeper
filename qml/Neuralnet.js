@@ -1,8 +1,4 @@
-/**
-  * @Deprecated
-  * JS Object.create() does not new a object, this is not I want to get.
-  */
-Qt.include("Params.js")
+﻿Qt.include("Params.js")
 
 /*
  * neural cell, which may contain a lot of inputs and just one output 
@@ -16,12 +12,13 @@ var Neuron = {
     build: function(inputNum) {
         var n = Object.create(Neuron);
         n.inputNum = inputNum;
+        n.weights = [];
         // it includes valve value, so there is one more than inputNum
         for (var i = 0; i < inputNum + 1; i++) {
             // -1 ~ 1
             n.weights.push(Math.random() * 2 - 1);
         }
-        console.log( n.inputNum + "  " + n.weights.length);
+//        console.log( n.inputNum + "  " + n.weights.length + " ==> " + n.weights);
         return n;
     }
 };
@@ -34,6 +31,7 @@ var NeuronLayer = {
      * {int} inputNumPerNeuron      it now indicates that input number of each neuron in this layer is the same
      */
     build: function(neuronNum, inputNumPerNeuron) {
+        this.neurons = [];
         for (var i = 0; i < neuronNum; i++) {
             this.neurons.push(Neuron.build(inputNumPerNeuron));
         }
@@ -41,7 +39,7 @@ var NeuronLayer = {
     },
 
     getNeuronNum: function() {
-        return neurons.length;
+        return this.neurons.length;
     }
 };
 
@@ -82,18 +80,19 @@ var NeuralNet = {
      * config file's path is set by fileutil
      **/
     build: function() {
-        this.inputNum = Params.getParam("NeuralNet_inputNum", 5);
+        this.inputNum = Params.getParam("NeuralNet_inputNum", 4);
         this.outputNum = Params.getParam("NeralNet_outputNum", 2);
-        this.hiddenLayers = Params.getParam("NeuralNet_hiddenLayers", 0);
-        this.neuronsPerHiddenLayer = Params.getParam("NeuralNet_neuronsPerHiddenLayer", 2);
+        this.hiddenLayers = Params.getParam("NeuralNet_hiddenLayers", 1);
+        this.neuronsPerHiddenLayer = Params.getParam("NeuralNet_neuronsPerHiddenLayer", 4);
         this.createNet();
-        this.weights = Params.getParam("NeuralNet_weights",[]);
+        this.weights = Params.getParam("NeuralNet_weights", []);
         if( this.weights.length === this.getNumberOfWeights() ) {
-//            this.putWeights(Params.NeuralNet_weights);
+//            console.log(this.weights)
+            this.putWeights(this.weights);
         } else {
             Params.setParam("NeuralNet_weights", this.getWeights());
         }
-        console.log(this.weights.length+ " ===  " + this.getNumberOfWeights() + "  " + Params.getParam("NeuralNet_weights",[]))
+//        console.log(this.weights.length+ " ===  " + this.getNumberOfWeights() + "  " + Params.getParam("NeuralNet_weights",[]))
 
         return this;
     },
@@ -116,7 +115,7 @@ var NeuralNet = {
         } else {
             // connect output layer and input layer directly
             this.layers.push(NeuronLayer.build(this.outputNum, this.inputNum));
-            console.log(this.layers[0].neurons.length);
+//            console.log(this.layers[0].neurons.length);
         }
     },
 
@@ -175,9 +174,10 @@ var NeuralNet = {
             return outputs;
         }
 
-        for (var i = 0; i < hiddenLayers; i++) {
+        for (var i = 0; i < this.hiddenLayers; i++) {
             if (i > 0) {
                 inputs = outputs;
+                console.log("input: " + inputs);
             }
             outputs = [];
             weight = 0;
@@ -187,14 +187,14 @@ var NeuralNet = {
                 var netinput = 0;
                 var neuron = this.layers[i].neurons[j];
 
-                for (var k = 0; k < inputNum - 1; k++) {
+                for (var k = 0; k < this.inputNum - 1; k++) {
                     netinput += neuron.weights[k] * inputs[weight++];
                 }
 
                 // valve value
-                netinput += neuron.weights[inputNum - 1] * Params.getParam("bias", 1);
+                netinput += neuron.weights[this.inputNum - 1] * Params.getParam("bias", 1);
                 // compute the sum all output, and handle it with sigmoid() function
-                outputs.push(sigmoid(netinput, Params.getParam("activationResponse", 1)));
+                outputs.push(this.sigmoid(netinput, Params.getParam("activationResponse", 1)));
                 weight = 0;
             }
         }

@@ -1,5 +1,4 @@
 ﻿#include "fileutil.h"
-#include <QTextStream>
 #include <QDir>
 #include <QDebug>
 
@@ -50,9 +49,24 @@ bool FileUtil::write(const QString &data) {
     if( !file.open(QIODevice::WriteOnly | QIODevice::Text) ) {
         return false;
     }
-    qDebug() <<  file.fileName();
+//    qDebug() <<  file.fileName();
     QTextStream out(&file);
     out << data << "\n";
     file.close();
     return true;
 }
+
+//bool FileUtil::getOutStream(QTextStream *out) {
+//    if( !file.open(QIODevice::WriteOnly | QIODevice::Text) ) {
+//        return false;
+//    }
+//    out = new QTextStream(&file);
+//    fileOpened = true;
+//    return true;
+//}
+
+//void FileUtil::closeFile() {
+//    if( fileOpened ) {
+//        file.close();
+//    }
+//}

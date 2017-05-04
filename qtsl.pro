@@ -5,7 +5,10 @@ CONFIG += c++11
 SOURCES += main.cpp \
     fileutil.cpp \
     configutil.cpp \
-    cneuralnet.cpp
+    cneuralnet.cpp \
+    controller.cpp \
+    minesweeper.cpp \
+    mine.cpp
 
 RESOURCES += qml.qrc
 
@@ -34,4 +37,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     fileutil.h \
     configutil.h \
-    cneuralnet.h
+    cneuralnet.h \
+    controller.h \
+    minesweeper.h \
+    mine.h

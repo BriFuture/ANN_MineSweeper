@@ -1,9 +1,9 @@
-
+﻿
 var Tank = {
     "id": 0,
     "x": 0,
     "y": 0,
-    "rotate": 0,
+    "rotate": 0,        // degree
     "scanscale": 40,
     "wheel_x": 18,
     "wheel_y": 15,
@@ -11,11 +11,14 @@ var Tank = {
     "wheel_height": 21,
     "head_offset": 4,
     "head_length": 36,
-    "speed": 10,
+    "speed": 8,
+    "neuralnet": {},
+    "fitness": 0,
     create: function(id) {
         var t = Object.create(Tank);
         t.self = t;
         t.create = null;
+        t.neuralnet = NeuralNet.build();
         return t;
     },
     /**
@@ -28,20 +31,50 @@ var Tank = {
         // stroke tank
         this.strokeSelf();
     },
+
     /**
       * {int} direction  1 stands for going ahead  -1 stands for going back
       */
-    move: function(direction, rotateOffset) {
+    move: function(speed, rotateOffset) {
         this.rotate += rotateOffset;
         this.rotate %= 360;
-        var mx = Math.cos(degToRad(this.rotate-90)) * direction * this.speed;
-        var my = Math.sin(degToRad(this.rotate-90)) * direction * this.speed;
+        if( speed > this.speed ) {
+            speed = this.speed;
+        } else if( speed < - this.speed) {
+            speed = -this.speed;
+        }
+
+        console.log(this.rotate)
+
+        var mx = Math.cos(degToRad(this.rotate+90)) * speed;
+        var my = Math.sin(degToRad(this.rotate+90)) * speed;
         this.x += mx;
         this.y += my;
+        if( this.x < 0 ) {
+            this.x = windowContainer.width;
+        } else if ( this.x > windowContainer.width ) {
+            this.x = 0;
+        }
+
+        if( this.y < 0 ) {
+            this.y = windowContainer.height;
+        } else if ( this.y > windowContainer.height ) {
+            this.y = 0;
+        }
+
         this.draw();
     },
-    scan: function() {
 
+    /**
+      * according to self state, modify neural net and update state
+    */
+    updateState: function(mines) {
+        var mine = this.findClosestMine(mines);
+        var dirVector = this.getRotationVector();
+        var inputs = [mine.x/windowContainer.width, mine.y/windowContainer.height, dirVector[0], dirVector[1]];
+        var outputs = this.neuralnet.update(inputs);
+//        console.log("output: "+ outputs );
+        this.move(outputs[0], outputs[1]);
     },
 
     strokeSelf: function() {
@@ -111,7 +144,7 @@ var Tank = {
     },
 
     /**
-      * calc angle with the direction and the closest mine
+      * calc angle with the direction and the closest mine, return value is in degree
       * {int} mx
       * {int} my
     */
@@ -120,8 +153,8 @@ var Tank = {
         var a2 = my - this.y;
         var r1 = degToRad(this.rotate+90);
         var r2 = degToRad(this.rotate);
-        var theta = Math.acos((a1*b1+a2*b2)/this.calcPointsDistance([a1, a2], [Math.cos(r1), Math.sin(r1)]));
-        var thetap = Math.acos((a1*b1+a2*b2)/this.calcPointsDistance([a1, a2], [Math.cos(r2), Math.sin(r2)]));
+        var theta = Math.acos((a1*b1+a2*b2)/calcPointsDistance([a1, a2], [Math.cos(r1), Math.sin(r1)]));
+        var thetap = Math.acos((a1*b1+a2*b2)/calcPointsDistance([a1, a2], [Math.cos(r2), Math.sin(r2)]));
         if( thetap > 0) {
             // left hand
             theta = Math.PI*2 - theta;
@@ -132,8 +165,9 @@ var Tank = {
       * {Array} mines
     **/
     findClosestMine: function(mines) {
-        var closestMines = [];
-        var closests = -1;
+        var closestMines = mines[0];
+        var closests = calcPointsDistance([this.x, this.y], [mines[0].x, mines[0].y]);
+        var point = [this.x, this.y];
         mines.forEach(function(mine, index) {
 //            if(mine.inScale([this.x-this.scanscale, this.x+this.scanscale], [this.y-this.scanscale, this.y+this.scanscale])) {
 //                closestMines.push(mine);
@@ -142,11 +176,22 @@ var Tank = {
 //                closests = calcPointsDistance([this.x, this.y], [mine.x, mine.y]);
 //            }
 
-            if( this.calcPointsDistance([this.x, this.y], [mine.x, mine.y]) < this.scanscale ) {
-                closestMines.push(mine);
+//            if( calcPointsDistance([this.x, this.y], [mine.x, mine.y]) < this.scanscale ) {
+//                closestMines.push(mine);
+//            }
+            if( calcPointsDistance(point, [mine.x, mine.y]) < closests ) {
+                closestMines = mine;
             }
         });
         return closestMines;
+    },
+
+    getRotationVector: function() {
+        // rotate 0 => (0, 1)  90 => (-1, 0)  180 => (0, -1)  270 => (1, 0)
+        var r = degToRad(this.rotate+90);
+        var x = Math.cos(r);
+        var y = Math.sin(r);
+        return [x, y];
     }
 };
 

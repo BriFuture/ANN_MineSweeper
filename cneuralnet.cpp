@@ -3,15 +3,16 @@
 #include <QDebug>
 
 
-double RandomClamped() {
-
-    return rand() / (0.0+RAND_MAX);
+double RandomClamped(double range = 1, double start = 0) {
+    double r = rand() / (0.0+RAND_MAX);
+    return r*range+start;
 }
 
 SNeuron::SNeuron(int inputNum) : inputNum(inputNum+1) {
+    // +1 means that valve value is considered
     for(int i=0; i < inputNum+1; ++i) {
         // 将权重初始化为任意的值
-        weights.push_back(RandomClamped());
+        weights.push_back(RandomClamped(2, -1));
     }
 }
 
@@ -23,14 +24,17 @@ SNeuronLayer::SNeuronLayer(int neuronNum, int inputNumPerNeuron) : neuronNum(neu
 }
 
 CNeuralNet::CNeuralNet() {
-    inputNum = config.readConfig("NeuralNet_inputNum", 5);
+    inputNum  = config.readConfig("NeuralNet_inputNum", 4);
     outputNum = config.readConfig("NeuralNet_outputNum", 2);
-    hiddenLayerNum = config.readConfig("NeuralNet_hiddenLayerNum", 1);
+    hiddenLayerNum      = config.readConfig("NeuralNet_hiddenLayerNum", 1);
     neuronsPerHiddenLyr = config.readConfig("NeuralNet_neuronsPerHiddenLyr", 4);
+    maxPerturbation     = config.readConfig("maxPerturbation", 0.001);
+    activationResponse  = config.readConfig("activationResponse", 1.0);
+    bias = config.readConfig("bias", -1.0);
 }
 
 CNeuralNet::~CNeuralNet() {
-    config.writeConfig();
+//    config.writeConfig();
 }
 
 void CNeuralNet::CreateNet() {
@@ -59,10 +63,11 @@ vector<double> CNeuralNet::GetWeights() const {
             SNeuron neuron = layer.neurons[ni];
             for(int wi = 0; wi < neuron.inputNum; wi++) {
                 weights.push_back(neuron.weights[wi]);
+//                qDebug() << neuron.weights[wi];
             }
         }
     }
-    qDebug() << "weights " << weights.size();
+//    qDebug() << "weights " << weights.size();
     return weights;
 }
 
@@ -123,9 +128,9 @@ vector<double> CNeuralNet::Update(vector<double> &inputs) {
             }
 
             // 加入偏移值
-            netinput += layers[i].neurons[j].weights[inputNum-1] * 1;
+            netinput += layers[i].neurons[j].weights[NumInputs-1] * bias;
             /* 产生每层的输出后，就保存，先要通过S形函数的过滤，才能得到输出。*/
-            outputs.push_back(Sigmoid(netinput, 1));
+            outputs.push_back(Sigmoid(netinput, activationResponse));
             cWeight = 0;
         }
     }

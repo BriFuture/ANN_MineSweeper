@@ -46,6 +46,10 @@ private:
     int outputNum;  // output
     int hiddenLayerNum; // hiddenLayer
     int neuronsPerHiddenLyr;
+
+    double maxPerturbation;
+    double activationResponse;
+    double bias;
     // 为每一层（包括输出层）存放所有神经细胞的存储器
     vector<SNeuronLayer> layers;
     ConfigUtil config;
